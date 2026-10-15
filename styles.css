@@ -1,0 +1,86 @@
+/*
+This CSS file will be included with your plugin, and
+available in the app when your plugin is enabled.
+
+If your plugin does not need CSS, delete this file.
+*/
+
+/* Keep the publisher panel buttons from stretching across the modal. */
+.hugo-publisher-buttons {
+	display: flex;
+	gap: var(--size-4-2);
+	justify-content: flex-end;
+}
+
+/* Sidebar Hugo preview: a compact toolbar above a full-height frame. */
+.hugo-preview-view {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	padding: 0;
+}
+
+.hugo-preview-toolbar {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-2);
+	padding: var(--size-4-2);
+}
+
+/* Channel tabs: underline style, following note-to-mp's layout. */
+.hugo-preview-tabs {
+	display: flex;
+	gap: 4px;
+	padding: 0 8px;
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.hugo-preview-tabs button {
+	padding: 6px 16px;
+	border: none;
+	border-radius: 4px 4px 0 0;
+	background: transparent;
+	box-shadow: none;
+	color: var(--text-muted);
+	font-size: 14px;
+	height: auto;
+	cursor: pointer;
+}
+
+.hugo-preview-tabs button:hover {
+	color: var(--text-normal);
+	background: var(--background-modifier-hover);
+}
+
+.hugo-preview-tabs button.is-active {
+	color: var(--text-accent);
+	border-bottom: 2px solid var(--interactive-accent);
+	background: var(--background-modifier-hover);
+	font-weight: 600;
+}
+
+.hugo-preview-spacer {
+	flex: 1 1 auto;
+}
+
+.hugo-preview-body {
+	flex: 1 1 auto;
+	min-height: 0;
+	overflow: auto;
+	background: var(--background-secondary);
+}
+
+.hugo-preview-frame {
+	display: block;
+	width: 100%;
+	height: 100%;
+	margin: 0 auto;
+	border: 0;
+	background: #fff;
+}
+
+/* HTML channel previews: center the white article card. */
+.channel-preview-wrap {
+	max-width: 680px;
+	margin: 0 auto;
+}

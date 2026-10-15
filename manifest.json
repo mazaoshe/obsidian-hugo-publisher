@@ -1,0 +1,10 @@
+{
+	"id": "hugo-publisher",
+	"name": "Hugo Publisher",
+	"version": "0.1.0",
+	"minAppVersion": "1.7.2",
+	"description": "Publish the current note to a Hugo site: sync frontmatter, preview locally with hugo server, then commit and push.",
+	"author": "杨继康",
+	"authorUrl": "https://www.ypplog.cn",
+	"isDesktopOnly": true
+}
