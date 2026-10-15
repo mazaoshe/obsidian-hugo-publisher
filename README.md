@@ -1,92 +1,76 @@
 # Hugo Publisher
 
-An Obsidian plugin that turns the current note into a Hugo post: it converts the
-frontmatter, writes the file into the Hugo content folder, previews it locally,
-and then commits and pushes only that post.
+一个 Obsidian 插件：把当前笔记一键发布到 Hugo 博客，并提供公众号、头条的内容预览和复制。
 
-Built for a personal vault (`Content/` drafts) and a Hugo site
-(`content/posts/`), both on the same machine.
+- 桌面端专用（需要调用本机的 `hugo` / `git` 命令）。
+- 界面为中文。
 
-> **Note**: the default settings point to the author's own machine (macOS,
-> Homebrew, and a Clash proxy on port 7897). Change them in the settings on
-> first use. The UI is in Chinese.
+## 功能
 
-## Commands
+- **发布到 Hugo**：把当前笔记转成 Hugo 文章（自动转换 frontmatter），写入 Hugo 项目的 `content/posts/`，本地预览，再提交推送。
+- **侧栏预览**：右侧栏实时预览，支持三个渠道标签页——
+  - 博客：内嵌 `hugo server`，所见即所得，编辑时自动热更新。
+  - 公众号：MWeb Indigo 风格排版，一键复制为富文本 HTML。
+  - 头条：干净排版，一键复制。
+- **两种发布方式**：内置 git 提交（只提交当前这篇文章），或调用你自己的发布脚本（如 `deploy.sh`）。
+- **渠道开关**：公众号 / 头条 / 博客三个渠道可分别开关，只显示你要用的。
 
-| Command | What it does |
+## 安装
+
+### 方式一：BRAT（推荐）
+
+1. 安装 [BRAT](https://github.com/TfTHacker/obsidian42-brat) 插件。
+2. 命令面板 → `BRAT: Add a beta plugin for testing`。
+3. 输入 `mazaoshe/obsidian-hugo-publisher`，按提示启用。
+
+### 方式二：手动
+
+1. 从 [Releases](https://github.com/mazaoshe/obsidian-hugo-publisher/releases) 下载 `main.js`、`manifest.json`、`styles.css`。
+2. 放入 `<你的库>/.obsidian/plugins/hugo-publisher/`。
+3. 设置 → 第三方插件，启用 Hugo Publisher。
+
+## 首次配置
+
+默认路径指向作者本人的机器，**第一次使用务必在设置里改成你自己的**：
+
+- **Hugo 项目根目录**：包含 `hugo.yml` 的目录。
+- **库源文件夹**：你要发布/预览的笔记所在的文件夹（默认 `Content`）。
+- **Hugo / Git 可执行文件**：绝对路径（Obsidian 不继承 shell 的 PATH）。
+- **发布方式**：选「内置 Git 提交」或「调用发布脚本」（填你的脚本路径）。
+
+## 命令
+
+| 命令 | 作用 |
 | --- | --- |
-| Sync current note to Hugo | Writes the active note into the Hugo content folder with `draft: true` and converted frontmatter. |
-| Start preview | Runs `hugo server`, waits until it is reachable, then opens it in the browser. |
-| Stop preview | Stops the preview process started by this plugin. |
-| Publish current note | Writes the note with `draft: false`, optionally builds the site, then commits and pushes just this post. |
-| Open preview sidebar | Opens a right-sidebar view that previews the current note, with live reload while you type. |
-| Copy as WeChat HTML | Copies the current note as a WeChat-styled article (rich text) for pasting into the 公众号 editor. |
-| Copy as Toutiao HTML | Copies the current note as a Toutiao-styled article for pasting into the 头条 editor. |
+| 同步当前笔记到 Hugo | 把当前笔记写入 Hugo 内容目录（草稿，`draft: true`） |
+| 启动预览 / 停止预览 | 手动控制 `hugo server` |
+| 发布当前笔记 | 写入文章（`draft: false`）并按设置的方式推送上线 |
+| 打开预览侧栏 | 打开右侧栏预览面板 |
+| 复制为公众号 HTML / 复制为头条 HTML | 复制富文本，粘贴到对应编辑器 |
 
-A globe ribbon icon opens the preview sidebar, which also has a Publish button.
+侧栏左上角是渠道标签页，右侧是刷新、复制（或「在浏览器打开」/「发布」）按钮。
 
-## Sidebar preview
+## Frontmatter 转换
 
-The preview sidebar drives the local `hugo server` and embeds its output in an
-iframe, so the note renders with the real theme. While it is open, editing the
-note rewrites the same draft file in the Hugo content folder (debounced) and
-Hugo's live reload refreshes the page automatically. The toolbar offers channel
-selection, width presets, a manual refresh, and open-in-browser.
+源笔记不会被修改，只生成一份发布层副本。
 
-The preview is built on a channel abstraction (`src/channels/`). Three channels are
-available in the sidebar dropdown:
+- **保留**：`title`、`tags`、`date`，以及你已经写好的发布字段。
+- **去掉**：`type`、`status`、`related`、`content_role`、`content_package`、`channel`、`published_url`（知识库专属字段）。
+- **自动补**（缺失时）：`slug`（弹窗填写）、`lastmod`、`draft`、`lang`、`categories`、`keywords`、`featured`、`hot`、`schema-type`、`schema-headline`。
+- `description` 和 `cover` 为空时不写入。
 
-- **博客**: embeds the running Hugo server in an iframe.
-- **公众号** / **头条**: render the note body to inline-styled HTML (there is no
-  official publishing API for personal accounts), so the same HTML is both
-  previewed and copied to the clipboard for pasting into the platform editor.
-
-Channel styling lives in `src/core/markdown-html.ts` (markdown-it + inline
-styles). Adding a platform means adding a renderer plus a style object.
-
-## Frontmatter conversion
-
-The source note is never modified. Only a publish-layer copy is written.
-
-- Kept: `title`, `tags`, `date`, and any publish field already set.
-- Dropped: `type`, `status`, `related`, `content_role`, `content_package`,
-  `channel`, `published_url`.
-- Filled when missing: `slug` (prompted for), `lastmod`, `draft`, `lang`
-  (`zh-cn`), `categories`, `keywords`, `featured`, `hot`, `schema-type`
-  (`TechArticle`), `schema-headline`.
-- `description` and `cover` are written only when non-empty.
-
-The slug is remembered from an already-synced post, so it is only asked once.
-
-## Settings
-
-- **Hugo project root**, **content subdirectory**, **vault source folder**
-- **Hugo binary**, **Git binary**, **extra PATH entries**
-- **Preview port**, **open preview in browser**
-- **Build before publishing**, **use proxy for Git push**, **proxy URL**
-- **Git remote**, **Git branch**
-
-Absolute paths matter: Obsidian is launched by the window server and does not
-inherit the PATH of a login shell, so `hugo` and `git` are not on `PATH` unless
-their directories are listed in **extra PATH entries**.
-
-## Development
+## 开发
 
 ```bash
 npm install
-npm run dev        # watch build
-npm run build      # type-check + production bundle
-npm test           # frontmatter unit tests
-npm run lint
+npm run dev        # 监听构建
+npm run build      # 类型检查 + 生产打包
+npm test           # 单元测试
+npm run lint       # ESLint（eslint-plugin-obsidianmd）
 ```
 
-Install into a vault by copying (or symlinking) `main.js`, `manifest.json` and
-`styles.css` into `<Vault>/.obsidian/plugins/hugo-publisher/`, then enable
-**Hugo Publisher** in **Settings → Community plugins**.
+技术栈：TypeScript + esbuild，遵循 Obsidian 官方 sample plugin 规范。
 
-## Scope and privacy
+## 许可
 
-This plugin is desktop-only. It intentionally works outside the vault: it writes
-into the configured Hugo project and runs `hugo` and `git` as child processes.
-Nothing leaves the machine except the `git push` you explicitly confirm, and no
-telemetry is collected.
+0-BSD（见 LICENSE）。
